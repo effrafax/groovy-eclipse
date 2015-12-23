@@ -4218,6 +4218,8 @@ options {
     paraphrase="a multi-line comment";
 }
     :   { atMultiCommentStart() }? "/*"
+      { if (parser!=null) { parser.startComment(inputState.getLine(),inputState.getColumn()-2); } }
+    
         (   /*  '\r' '\n' can be matched in one alternative or by matching
                 '\r' in one iteration and '\n' in another. I am trying to
                 handle any flavor of newline that comes in, but the language
