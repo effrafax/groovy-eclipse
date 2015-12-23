@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.codehaus.groovy.eclipse.core;singleton:=true
 Bundle-Version: 2.9.2.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.codehaus.groovy.eclipse.core.GroovyCoreActivator
-Require-Bundle: org.codehaus.groovy,
+Require-Bundle: org.codehaus.groovy;bundle-version="1.8.3",
  org.eclipse.core.runtime,
  org.eclipse.jdt.core,
  org.eclipse.debug.core;resolution:=optional,
