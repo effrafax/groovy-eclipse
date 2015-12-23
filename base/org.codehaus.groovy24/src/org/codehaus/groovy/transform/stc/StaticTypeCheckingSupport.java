@@ -1,17 +1,20 @@
 /*
- * Copyright 2003-2013 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
 
 package org.codehaus.groovy.transform.stc;
@@ -1689,18 +1692,18 @@ public abstract class StaticTypeCheckingSupport {
      * use supplied type to make a connection from usage to declaration
      * The method operates in two modes. 
      * * For type !instanceof target a structural compare will be done 
-     *   (for example Dummy<T> and List<R> to get T=R) 
+     *   (for example Dummy&lt;T&gt; and List&lt;R&gt; to get T=R)
      * * If type equals target, a structural match is done as well 
-     *   (for example Colection<U> and Collection<E> to get U=E)
+     *   (for example Colection&lt;U&gt; and Collection&lt;E&gt; to get U=E)
      * * otherwise we climb the hierarchy to find a case of type equals target
      *   to then execute the structural match, while applying possibly existing
-     *   generics contexts on the way (for example for IntRange and Collection<E>
-     *   to get E=Integer, since IntRange is an AbstractList<Integer>)
+     *   generics contexts on the way (for example for IntRange and Collection&lt;E&gt;
+     *   to get E=Integer, since IntRange is an AbstractList&lt;Integer&gt;)
      * Should the target not have any generics this method does nothing.
      */
     static void extractGenericsConnections(Map<String, GenericsType> connections, ClassNode type, ClassNode target) {
         if (target==null || type==target || !isUsingGenericsOrIsArrayUsingGenerics(target)) return;
-        if (type==UNKNOWN_PARAMETER_TYPE) return;
+        if (type == null || type==UNKNOWN_PARAMETER_TYPE) return;
         if (type.isArray() && target.isArray()) {
             extractGenericsConnections(connections, type.getComponentType(), target.getComponentType());
         } else if (target.isGenericsPlaceHolder() || type.equals(target) || !implementsInterfaceOrIsSubclassOf(type, target)) {

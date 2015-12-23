@@ -1,10 +1,28 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 // Note: Please don't use physical tabs.  Logical tabs for indent are width 4.
 
 // Note that this grammar has error recovery rules and code. It should not be used to compile class files. It is 
 // intended for IDE tooling and analysis in the face of incorrect code.
 // Recovery rules/code is near comment tag 'RECOVERY:'
-// This file was last merged from revision 12059 of file - 
-// groovy/tags/GROOVY_1_5_6/src/main/org/codehaus/groovy/antlr/groovy.g
+// This file was last merged from revision 39fee34a68b9218cffe8cdbef3f262474609f900 of file - 
+// groovy/src/main/org/codehaus/groovy/antlr/groovy.g
 
 header {
 package org.codehaus.groovy.antlr.parser;
@@ -202,7 +220,7 @@ import org.codehaus.groovy.ast.Comment;
  *    o fixed various rules so that they call the correct Create Method
  *      to make sure that the line information are correct
  *
- * This grammar is in the PUBLIC DOMAIN
+ * Based on an original grammar released in the PUBLIC DOMAIN
  */
 
 class GroovyRecognizer extends Parser;
@@ -3905,6 +3923,10 @@ options {
         return LA(1) == '$' && LA(2) == '$';
     }
 
+    protected boolean atMultiCommentStart() throws CharStreamException {
+        return LA(1) == '/' && LA(2) == '*';
+    }
+
     protected boolean atDollarSlashEscape() throws CharStreamException {
         return LA(1) == '$' && LA(2) == '/';
     }
@@ -4193,10 +4215,9 @@ options {
 // multiple-line comments
 ML_COMMENT
 options {
-    paraphrase="a comment";
+    paraphrase="a multi-line comment";
 }
-    :   "/*"
-      { if (parser!=null) { parser.startComment(inputState.getLine(),inputState.getColumn()-2); } }
+    :   { atMultiCommentStart() }? "/*"
         (   /*  '\r' '\n' can be matched in one alternative or by matching
                 '\r' in one iteration and '\n' in another. I am trying to
                 handle any flavor of newline that comes in, but the language
@@ -4298,7 +4319,8 @@ options {
     paraphrase="a multiline regular expression literal";
 }
         {int tt=0;}
-    :   {allowRegexpLiteral()}?
+    :   { !atMultiCommentStart() }?
+        (   {allowRegexpLiteral()}?
         '/'!
         {++suppressNewline;}
         //Do this, but require it to be non-trivial:  REGEXP_CTOR_END[true]
@@ -4318,8 +4340,9 @@ options {
         )
         {$setType(tt);}
 
-    |   DIV                 {$setType(DIV);}
+    |   ( '/' ~'=' ) => DIV {$setType(DIV);}
     |   DIV_ASSIGN          {$setType(DIV_ASSIGN);}
+        )
     ;
 
 DOLLAR_REGEXP_LITERAL

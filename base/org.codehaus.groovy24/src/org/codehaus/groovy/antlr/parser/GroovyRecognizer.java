@@ -213,7 +213,7 @@ import groovyjarjarantlr.collections.impl.ASTArray;
  *    o fixed various rules so that they call the correct Create Method
  *      to make sure that the line information are correct
  *
- * This grammar is in the PUBLIC DOMAIN
+ * Based on an original grammar released in the PUBLIC DOMAIN
  */
 public class GroovyRecognizer extends groovyjarjarantlr.LLkParser       implements GroovyTokenTypes
  {
@@ -259,7 +259,7 @@ public class GroovyRecognizer extends groovyjarjarantlr.LLkParser       implemen
      * To be used in place of antlr tree construction syntax,
      * i.e. #[TOKEN,"text"]  becomes  create(TOKEN,"text",anotherToken)
      *
-     * todo - change antlr.ASTFactory to do this instead...
+     * todo - change groovyjarjarantlr.ASTFactory to do this instead...
      */
     public AST create(int type, String txt, AST first) {
         AST t = astFactory.create(type,txt);
@@ -348,7 +348,7 @@ public class GroovyRecognizer extends groovyjarjarantlr.LLkParser       implemen
 
 
     // stuff to adjust ANTLR's tracing machinery
-    public static boolean tracing = false;  // only effective if antlr.Tool is run with -traceParser
+    public static boolean tracing = false;  // only effective if groovyjarjarantlr.Tool is run with -traceParser
     public void traceIn(String rname) throws TokenStreamException {
         if (!GroovyRecognizer.tracing)  return;
         super.traceIn(rname);
@@ -15079,7 +15079,7 @@ inputState.guessing--;
 		"a newline",
 		"a newline",
 		"a single line comment",
-		"a comment",
+		"a multi-line comment",
 		"a string character",
 		"a multiline regular expression literal",
 		"a multiline dollar escaping regular expression literal",
