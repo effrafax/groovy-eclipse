@@ -532,8 +532,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 			// GRECLIPSE-578 the @Lazy annotation forces an AST transformation
 			// not sure if we get much here because I think the body of the generated method for
 			// @Lazy is filled with binary instructions.
-			List<MethodNode> lazyMethods = ((ClassNode) enclosingDeclarationNode).getDeclaredMethods("set$"
-					+ field.getElementName());
+			List<MethodNode> lazyMethods = ((ClassNode) enclosingDeclarationNode)
+					.getDeclaredMethods("set$" + field.getElementName());
 			if (lazyMethods.size() > 0) {
 				MethodNode lazyMethod = lazyMethods.get(0);
 				enclosingDeclarationNode = lazyMethod;
@@ -598,7 +598,6 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 	 *
 	 * @param node
 	 */
-	@SuppressWarnings("cast")
 	private void visitClassInternal(ClassNode node) {
 		if (resolver != null) {
 			resolver.currentClass = node;
@@ -850,7 +849,6 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 		}
 	}
 
-	@SuppressWarnings("cast")
 	@Override
 	public void visitAnnotations(AnnotatedNode node) {
 		for (AnnotationNode annotation : (Iterable<AnnotationNode>) node.getAnnotations()) {
@@ -1263,8 +1261,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 					}
 				}
 			} else
-			// it variable only exists if there are no explicit parameters
-			if (implicitParamType[0] != VariableScope.OBJECT_CLASS_NODE && !scope.containsInThisScope("it")) {
+				// it variable only exists if there are no explicit parameters
+				if (implicitParamType[0] != VariableScope.OBJECT_CLASS_NODE && !scope.containsInThisScope("it")) {
 				scope.addVariable("it", implicitParamType[0], VariableScope.OBJECT_CLASS_NODE);
 			}
 			if (scope.lookupNameInCurrentScope("it") == null) {
@@ -1782,8 +1780,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 				localMapProperties.put(currentMapVariable, map);
 			}
 			if (enclosingAssignment != null) {
-				map.put(((ConstantExpression) node.getProperty()).getConstantName(), enclosingAssignment.getRightExpression()
-						.getType());
+				map.put(((ConstantExpression) node.getProperty()).getConstantName(),
+						enclosingAssignment.getRightExpression().getType());
 			}
 		}
 		node.getProperty().visit(this);
@@ -1862,8 +1860,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 	public void visitStaticMethodCallExpression(StaticMethodCallExpression node) {
 		if (isPrimaryExpression(node)) {
 			needToFixStaticMethodType = true;
-			visitMethodCallExpression(new MethodCallExpression(new ClassExpression(node.getOwnerType()), node.getMethod(),
-					node.getArguments()));
+			visitMethodCallExpression(
+					new MethodCallExpression(new ClassExpression(node.getOwnerType()), node.getMethod(), node.getArguments()));
 			needToFixStaticMethodType = false;
 		}
 		boolean shouldContinue = handleSimpleExpression(node);
@@ -2024,8 +2022,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 	private void handleCompleteExpression(Expression node, ClassNode exprType, ClassNode exprDeclaringType) {
 		VariableScope scope = scopes.peek();
 		scope.setPrimaryNode(false);
-		handleRequestor(node, exprDeclaringType, new TypeLookupResult(exprType, exprDeclaringType, node, TypeConfidence.EXACT,
-				scope));
+		handleRequestor(node, exprDeclaringType,
+				new TypeLookupResult(exprType, exprDeclaringType, node, TypeConfidence.EXACT, scope));
 	}
 
 	private void postVisit(Expression node, ClassNode type, ClassNode declaringType, ASTNode declaration) {
@@ -2037,7 +2035,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 		}
 	}
 
-	private TypeLookupResult lookupExpressionType(Expression node, ClassNode objectExprType, boolean isStatic, VariableScope scope) {
+	private TypeLookupResult lookupExpressionType(Expression node, ClassNode objectExprType, boolean isStatic,
+			VariableScope scope) {
 		TypeLookupResult result = null;
 		for (ITypeLookup lookup : lookups) {
 			TypeLookupResult candidate;
@@ -2047,7 +2046,11 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 				candidate = lookup.lookupType(node, scope, objectExprType);
 			}
 			if (candidate != null) {
-				if (result == null || result.confidence.isLessPreciseThan(candidate.confidence)) {
+				// If the current result is not void type it has precedence over
+				// more confident candidates with void type.
+				if (result == null
+						|| (!(result.type != VariableScope.VOID_CLASS_NODE && candidate.type == VariableScope.VOID_CLASS_NODE)
+								&& result.confidence.isLessPreciseThan(candidate.confidence))) {
 					result = candidate;
 				}
 				if (TypeConfidence.LOOSELY_INFERRED.isLessPreciseThan(result.confidence)) {
@@ -2072,6 +2075,7 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 	 *
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private int getMethodCallArgsCount() {
 		ASTNode peek = completeExpressionStack.peek();
 		if (peek instanceof MethodCallExpression) {
@@ -2211,8 +2215,8 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 				}
 				outer: for (ConstructorNode constructorNode : constructors) {
 					String[] jdtParamTypes = method.getParameterTypes() == null ? new String[0] : method.getParameterTypes();
-					Parameter[] groovyParams = constructorNode.getParameters() == null ? new Parameter[0] : constructorNode
-							.getParameters();
+					Parameter[] groovyParams = constructorNode.getParameters() == null ? new Parameter[0]
+							: constructorNode.getParameters();
 					// ignore the implicit constructor parameter of constructors for inner types
 					if (groovyParams != null && groovyParams.length > 0 && groovyParams[0].getName().startsWith("$")) {
 						Parameter[] newGroovyParams = new Parameter[groovyParams.length - 1];
@@ -2346,7 +2350,6 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 		return null;
 	}
 
-	@SuppressWarnings("cast")
 	private ClassNode findClassWithName(String simpleName) {
 		for (ClassNode clazz : (Iterable<ClassNode>) getModuleNode().getClasses()) {
 			if (clazz.getNameWithoutPackage().equals(simpleName)) {
@@ -2508,7 +2511,7 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 			if (maybeProperty instanceof PropertyExpression) {
 				PropertyExpression prop = (PropertyExpression) maybeProperty;
 				return prop.getObjectExpression() instanceof ClassExpression ||
-				// check to see if in a static scope
+						// check to see if in a static scope
 						(prop.isImplicitThis() && scopes.peek().isStatic());
 			} else if (maybeProperty instanceof MethodCallExpression) {
 				MethodCallExpression prop = (MethodCallExpression) maybeProperty;
@@ -2635,8 +2638,7 @@ public class TypeInferencingVisitorWithRequestor extends ClassCodeVisitorSupport
 				"Inferencing engine in invalid state after visitor completed.  All stacks should be empty after visit completed.");
 		Assert.isTrue(dependentTypeStack.isEmpty(),
 				"Inferencing engine in invalid state after visitor completed.  All stacks should be empty after visit completed.");
-		Assert.isTrue(
-				scopes.isEmpty(),
+		Assert.isTrue(scopes.isEmpty(),
 				"Inferencing engine in invalid state after visitor completed.  All stacks should be empty after visit completed - there are still variable scopes");
 	}
 }
